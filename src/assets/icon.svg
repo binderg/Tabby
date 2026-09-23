@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="30" fill="#f0506e"/>
+  <!-- ears -->
+  <path d="M26 58 L30 18 L58 38 Z" fill="#f4a340"/>
+  <path d="M102 58 L98 18 L70 38 Z" fill="#f4a340"/>
+  <path d="M33 48 L35 28 L50 39 Z" fill="#fcd9b0"/>
+  <path d="M95 48 L93 28 L78 39 Z" fill="#fcd9b0"/>
+  <!-- head -->
+  <ellipse cx="64" cy="72" rx="42" ry="36" fill="#f4a340"/>
+  <!-- tabby stripes -->
+  <path d="M64 37 v14" stroke="#b8611c" stroke-width="6" stroke-linecap="round"/>
+  <path d="M52 39 l3 11" stroke="#b8611c" stroke-width="5" stroke-linecap="round"/>
+  <path d="M76 39 l-3 11" stroke="#b8611c" stroke-width="5" stroke-linecap="round"/>
+  <path d="M23 70 h12 M24 80 h11" stroke="#b8611c" stroke-width="5" stroke-linecap="round"/>
+  <path d="M105 70 h-12 M104 80 h-11" stroke="#b8611c" stroke-width="5" stroke-linecap="round"/>
+  <!-- muzzle -->
+  <ellipse cx="64" cy="88" rx="18" ry="13" fill="#fcd9b0"/>
+  <!-- eyes -->
+  <ellipse cx="48" cy="70" rx="5" ry="7" fill="#2b1a10"/>
+  <ellipse cx="80" cy="70" rx="5" ry="7" fill="#2b1a10"/>
+  <!-- nose and mouth -->
+  <path d="M59 82 h10 l-5 6 Z" fill="#e0536b"/>
+  <path d="M64 88 q-5 7 -10 3 M64 88 q5 7 10 3" stroke="#2b1a10" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>
