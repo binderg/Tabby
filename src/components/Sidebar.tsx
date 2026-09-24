@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import clsx from "clsx"
 import { Download, Plus, Search, Trash2, Upload } from "lucide-react"
+import { useDroppable } from "@dnd-kit/core"
 import { useCell, useSortedRowIds, useValue } from "tinybase/ui-react"
 
 import { InlineName } from "./InlineName"
@@ -126,13 +127,16 @@ function SpaceItem({
 }) {
   const name = useCell("spaces", id, "name") as string
   const color = useCell("spaces", id, "color") as string
+  // a collection dragged here moves into this space
+  const { setNodeRef, isOver } = useDroppable({ id: `space:${id}`, data: { type: "space", id } })
 
   return (
     <div
+      ref={setNodeRef}
       onClick={() => store.setValue("activeSpace", id)}
       className={clsx(
         "group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5",
-        active ? "bg-hover font-medium" : "hover:bg-hover",
+        isOver ? "bg-panel-hi outline-2 outline-accent" : active ? "bg-hover font-medium" : "hover:bg-hover",
       )}
     >
       <span className={clsx("grid size-4 shrink-0 place-items-center rounded text-[9px] font-bold text-white", `space-${color}`)}>

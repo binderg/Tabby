@@ -11,18 +11,37 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core"
+import { Layers } from "lucide-react"
 
 import { CardBody } from "./LinkCard"
 import { OpenTabs } from "./OpenTabs"
 import { Sidebar } from "./Sidebar"
 import { SpaceView } from "./SpaceView"
-import { addLink, moveLink, store, useStoreReady } from "@/lib/store"
+import {
+  addLink,
+  moveCollectionToSpace,
+  moveLink,
+  reorderCollection,
+  store,
+  useStoreReady,
+  type View,
+} from "@/lib/store"
 
-type Dragged = { url: string; title: string; description?: string }
+type Dragged =
+  | { kind: "card"; url: string; title: string; description?: string }
+  | { kind: "collection"; name: string; count: number }
 
-/* Find the collection under the pointer, then the card in it nearest the
-   dragged card. Over a collection but not near any card means "append". */
+/* A collection being dragged lands on a space in the sidebar if the pointer is
+   over one, otherwise on the nearest collection. Anything else looks for the
+   collection under the pointer, then the card in it nearest the dragged card.
+   Over a collection but not near any card means "append". */
 const collision: CollisionDetection = (args) => {
+  if (args.active.data.current?.type === "collection") {
+    const space = pointerWithin(args).find((h) => String(h.id).startsWith("space:"))
+    if (space) return [space]
+    const cols = args.droppableContainers.filter((c) => c.data.current?.type === "collection")
+    return closestCenter({ ...args, droppableContainers: cols })
+  }
   const col = pointerWithin(args).find((h) => String(h.id).startsWith("col:"))
   if (!col) return []
   const colId = String(col.id).slice(4)
@@ -31,6 +50,7 @@ const collision: CollisionDetection = (args) => {
   )
   return cards.length ? closestCenter({ ...args, droppableContainers: cards }) : [col]
 }
+
 export function App() {
   const ready = useStoreReady()
   const [query, setQuery] = useState("")
@@ -40,9 +60,17 @@ export function App() {
 
   const onDragStart = ({ active }: DragStartEvent) => {
     const d = active.data.current!
-    if (d.type === "tab") setDragged({ url: d.url, title: d.title })
+    if (d.type === "tab") setDragged({ kind: "card", url: d.url, title: d.title })
+    if (d.type === "collection") {
+      setDragged({
+        kind: "collection",
+        name: (store.getCell("collections", d.id, "name") as string) || "Untitled collection",
+        count: store.getRowIds("links").filter((l) => store.getCell("links", l, "collectionId") === d.id).length,
+      })
+    }
     if (d.type === "link") {
       setDragged({
+        kind: "card",
         url: store.getCell("links", d.id, "url") as string,
         title: store.getCell("links", d.id, "title") as string,
         description: store.getCell("links", d.id, "description") as string,
@@ -55,6 +83,15 @@ export function App() {
     if (!over) return
     const from = active.data.current!
     const to = over.data.current!
+
+    if (from.type === "collection") {
+      if (to.type === "space" && to.id !== from.spaceId) moveCollectionToSpace(from.id, to.id)
+      if (to.type === "collection" && to.id !== from.id) {
+        reorderCollection(from.id, to.id, from.sortable.index < to.sortable.index)
+      }
+      return
+    }
+
     if (to.type === "collection") {
       if (from.type === "tab") addLink(to.id, { url: from.url, title: from.title })
       if (from.type === "link") moveLink(from.id, to.id)
@@ -77,6 +114,7 @@ export function App() {
     if (from.type === "tab") addLink(to.collectionId, { url: from.url, title: from.title }, place)
     if (from.type === "link") moveLink(from.id, to.collectionId, place)
   }
+
   if (!ready) return null
 
   return (
@@ -93,9 +131,16 @@ export function App() {
         <OpenTabs />
       </div>
       <DragOverlay dropAnimation={null}>
-        {dragged && (
+        {dragged?.kind === "card" && (
           <div className="w-[180px] rotate-2 cursor-grabbing shadow-lg">
-            <CardBody {...dragged} />
+            <CardBody {...dragged} view={store.getValue("view") as View} />
+          </div>
+        )}
+        {dragged?.kind === "collection" && (
+          <div className="flex w-max cursor-grabbing items-center gap-2 rounded-xl bg-card px-4 py-2.5 shadow-lg">
+            <Layers className="size-4 text-accent" />
+            <span className="font-medium">{dragged.name}</span>
+            <span className="text-xs text-ink-2">{dragged.count} tabs</span>
           </div>
         )}
       </DragOverlay>

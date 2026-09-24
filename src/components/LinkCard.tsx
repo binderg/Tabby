@@ -7,9 +7,9 @@ import { useCell } from "tinybase/ui-react"
 
 import { EditLinkModal } from "./EditLinkModal"
 import { faviconUrl } from "@/lib/favicon"
-import { store } from "@/lib/store"
+import { store, type View } from "@/lib/store"
 
-export function LinkCard({ id, collectionId }: { id: string; collectionId: string }) {
+export function LinkCard({ id, collectionId, view }: { id: string; collectionId: string; view: View }) {
   const url = useCell("links", id, "url") as string
   const title = useCell("links", id, "title") as string
   const description = useCell("links", id, "description") as string
@@ -18,6 +18,8 @@ export function LinkCard({ id, collectionId }: { id: string; collectionId: strin
     id: `link:${id}`,
     data: { type: "link", id, collectionId },
   })
+  // stacked in the corner on the tall views, side by side on the thin ones
+  const inRow = view === "compact" || view === "list"
 
   return (
     <div
@@ -27,8 +29,13 @@ export function LinkCard({ id, collectionId }: { id: string; collectionId: strin
       {...listeners}
       className={clsx("group relative", isDragging && "opacity-40")}
     >
-      <CardBody url={url} title={title} description={description} />
-      <div className="absolute top-1.5 right-1.5 hidden flex-col gap-0.5 group-hover:flex">
+      <CardBody url={url} title={title} description={description} view={view} />
+      <div
+        className={clsx(
+          "absolute right-1.5 hidden gap-0.5 group-hover:flex",
+          inRow ? "top-1/2 -translate-y-1/2 flex-row-reverse" : "top-1.5 flex-col",
+        )}
+      >
         <CardButton title="Remove" onClick={() => store.delRow("links", id)}>
           <X />
         </CardButton>
@@ -54,22 +61,59 @@ function CardButton({ title, onClick, children }: { title: string; onClick: () =
   )
 }
 
-/** The card itself, shared with the drag overlay. */
-export function CardBody({ url, title, description }: { url: string; title: string; description?: string }) {
+const SHADOW = "bg-card shadow-[0_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
+
+/** The card itself, in each view, shared with the drag overlay. */
+export function CardBody({
+  url,
+  title,
+  description,
+  view = "card",
+}: {
+  url: string
+  title: string
+  description?: string
+  view?: View
+}) {
+  const link = { href: url, target: "_blank", rel: "noreferrer", draggable: false, title: url }
+  const icon = (size: string) => <img src={faviconUrl(url, 64)} alt="" className={clsx(size, "shrink-0")} />
+  const name = <span className="truncate font-medium">{title || url}</span>
+
+  if (view === "compact") {
+    return (
+      <a {...link} className={clsx("flex h-10 items-center gap-2 rounded-lg px-3 pr-14", SHADOW)}>
+        {icon("size-4")}
+        {name}
+      </a>
+    )
+  }
+
+  if (view === "list") {
+    return (
+      <a {...link} className={clsx("flex h-9 items-center gap-2 rounded-lg px-3 pr-14", SHADOW)}>
+        {icon("size-4")}
+        <span className="max-w-[45%] shrink-0 truncate font-medium">{title || url}</span>
+        {description && description !== title && <span className="truncate text-ink-2">{description}</span>}
+      </a>
+    )
+  }
+
+  if (view === "grid") {
+    return (
+      <a {...link} className={clsx("flex h-[104px] flex-col items-center justify-center gap-2.5 rounded-xl px-2", SHADOW)}>
+        {icon("size-8")}
+        <span className="line-clamp-2 w-full text-center text-xs leading-tight font-medium break-words">{title || url}</span>
+      </a>
+    )
+  }
+
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noreferrer"
-      draggable={false}
-      title={url}
-      className="flex h-[92px] w-full flex-col overflow-hidden rounded-xl bg-card shadow-[0_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
-    >
+    <a {...link} className={clsx("flex h-[92px] w-full flex-col overflow-hidden rounded-xl", SHADOW)}>
       <span className="flex min-w-0 flex-1 items-center gap-2 px-3 pr-7">
-        <img src={faviconUrl(url)} alt="" className="size-4 shrink-0" />
-        <span className="truncate font-medium">{title || url}</span>
+        {icon("size-4")}
+        {name}
       </span>
-      <span className="truncate border-t border-line px-3 py-2 text-xs text-ink-2">{description || " "}</span>
+      <span className="truncate border-t border-line px-3 py-2 text-xs text-ink-2">{description || "\u00a0"}</span>
     </a>
   )
 }

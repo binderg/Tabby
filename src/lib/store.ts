@@ -28,6 +28,8 @@ export const SCHEMA = {
     order: { type: "number", default: 0 },
     collapsed: { type: "boolean", default: false },
     starred: { type: "boolean", default: false },
+    /** background tint, one of COLORS, or "" for none */
+    color: { type: "string", default: "" },
     createdAt: { type: "number", default: 0 },
     /** tag ids, as a JSON array (cells hold scalars only) */
     tags: { type: "string", default: "[]" },
@@ -82,8 +84,16 @@ function chromeStoragePersister(s: MergeableStore) {
       await chrome.storage.local.set({ [KEY]: JSON.stringify(getContent()) })
     },
     (listener) => {
+      /* Another page wrote. Hand its content over as *changes* (the trailing 1),
+         so TinyBase merges it by timestamp. Handing it over as content would
+         replace this page's store wholesale, and an older copy saved by another
+         open tab could then undo a newer edit, like a deletion made here. */
       const onChanged = (changes: { [k: string]: chrome.storage.StorageChange }, area: string) => {
-        if (area === "local" && KEY in changes) listener()
+        if (area !== "local" || !(KEY in changes)) return
+        const next = changes[KEY]!.newValue
+        if (typeof next !== "string") return
+        const [tables, values] = JSON.parse(next)
+        listener(undefined, [tables, values, 1])
       }
       chrome.storage.onChanged.addListener(onChanged)
       return onChanged
@@ -100,6 +110,9 @@ function open(): Promise<void> {
   if (opening) return opening
   opening = (async () => {
     const persister = chromeStoragePersister(store)
+    // in development, a hot reload of this file makes a new store; stop the old
+    // one saving so it cannot write stale data over the new one's
+    import.meta.hot?.dispose(() => persister.destroy())
     await persister.startAutoLoad()
     await persister.startAutoSave()
 
@@ -258,5 +271,30 @@ export function deleteTag(id: string) {
       if (collectionTags(c).includes(id)) toggleTag(c, id)
     }
     store.delRow("tags", id)
+  })
+}
+
+/* moving collections */
+
+/** Put a collection before or after another, in the order the space is shown in.
+    Reordering by hand means the order is now the user's, so the sort becomes Drag & Drop. */
+export function reorderCollection(id: string, targetId: string, after: boolean) {
+  const spaceId = store.getCell("collections", targetId, "spaceId") as string
+  const shown = sortCollections(sortedIds("collections", ["spaceId", spaceId]), store.getValue("sort") as Sort)
+  const ids = shown.filter((c) => c !== id)
+  ids.splice(ids.indexOf(targetId) + (after ? 1 : 0), 0, id)
+  store.transaction(() => {
+    ids.forEach((c, n) => store.setCell("collections", c, "order", n + 1))
+    store.setCell("collections", id, "spaceId", spaceId)
+    store.setValue("sort", "manual")
+  })
+}
+
+/** Move a collection to the top of another space. */
+export function moveCollectionToSpace(id: string, spaceId: string) {
+  const first = sortedIds("collections", ["spaceId", spaceId])[0]
+  store.transaction(() => {
+    store.setCell("collections", id, "order", first ? (store.getCell("collections", first, "order") as number) - 1 : 1)
+    store.setCell("collections", id, "spaceId", spaceId)
   })
 }
