@@ -21,6 +21,7 @@ export const SCHEMA = {
     name: { type: "string", default: "" },
     color: { type: "string", default: "pink" },
     order: { type: "number", default: 0 },
+    pinned: { type: "boolean", default: false },
   },
   collections: {
     spaceId: { type: "string", default: "" },

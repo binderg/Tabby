@@ -6,14 +6,10 @@ import { useValue } from "tinybase/ui-react"
 
 import { faviconUrl } from "@/lib/favicon"
 import { saveTabsAsCollection } from "@/lib/store"
+import { saveable } from "@/lib/tabs"
 
 type Win = { id: number; current: boolean; tabs: chrome.tabs.Tab[] }
 type Groups = Map<number, chrome.tabGroups.TabGroup>
-
-/** Web pages only: no new tab pages, settings, extensions or other browser internals. */
-function saveable(t: chrome.tabs.Tab) {
-  return /^(https?|file|ftp):/.test(t.url ?? "")
-}
 
 const GROUP_COLORS: Record<string, string> = {
   grey: "#8a8f98",

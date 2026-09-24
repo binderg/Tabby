@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react"
 import clsx from "clsx"
 import { Check, ChevronDown } from "lucide-react"
 
+import { Tooltip } from "./Tooltip"
+
 /** A toolbar button that opens a small menu below it. Closes on outside click or Escape. */
 export function Dropdown({
   icon,
@@ -9,11 +11,15 @@ export function Dropdown({
   active,
   align = "left",
   chevron = true,
-  title,
+  tooltip,
+  big = false,
   children,
 }: {
   chevron?: boolean
-  title?: string
+  /** shown on hover while the menu is closed */
+  tooltip?: string
+  /** a lone icon at the size of the collection header icons */
+  big?: boolean
   icon?: React.ReactNode
   label: React.ReactNode
   active?: boolean
@@ -37,18 +43,24 @@ export function Dropdown({
 
   return (
     <div ref={ref} className="relative" onPointerDown={(e) => e.stopPropagation()}>
-      <button
-        onClick={() => setOpen(!open)}
-        title={title}
-        className={clsx(
-          "flex items-center gap-1 rounded-md px-2 py-1 whitespace-nowrap hover:bg-hover [&>svg]:size-3.5",
-          (open || active) && "text-accent",
-        )}
-      >
-        {icon}
-        {label}
-        {chevron && <ChevronDown className={clsx("transition-transform", open && "rotate-180")} />}
-      </button>
+      {(() => {
+        const button = (
+          <button
+            onClick={() => setOpen(!open)}
+            aria-label={tooltip}
+            className={clsx(
+              "flex items-center gap-1 rounded-md whitespace-nowrap hover:bg-hover",
+              big ? "p-1.5 [&>svg]:size-[18px]" : "px-2 py-1 [&>svg]:size-3.5",
+              (open || active) && "text-accent",
+            )}
+          >
+            {icon}
+            {label}
+            {chevron && <ChevronDown className={clsx("transition-transform", open && "rotate-180")} />}
+          </button>
+        )
+        return tooltip && !open ? <Tooltip label={tooltip}>{button}</Tooltip> : button
+      })()}
       {open && (
         <div
           className={clsx(

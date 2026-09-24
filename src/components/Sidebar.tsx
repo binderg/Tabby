@@ -1,16 +1,21 @@
 import { useEffect, useRef, useState } from "react"
 import clsx from "clsx"
-import { Download, Plus, Search, Trash2, Upload } from "lucide-react"
+import { Download, Pin, PinOff, Plus, Search, Trash2, Upload } from "lucide-react"
 import { useDroppable } from "@dnd-kit/core"
-import { useCell, useSortedRowIds, useValue } from "tinybase/ui-react"
+import { useCell, useSortedRowIds, useTable, useValue } from "tinybase/ui-react"
 
 import { InlineName } from "./InlineName"
+import { Tooltip } from "./Tooltip"
 import { addSpace, COLORS, deleteSpace, store } from "@/lib/store"
 import { exportJson, importJson } from "@/lib/transfer"
 import icon from "@/assets/icon.svg"
 
 export function Sidebar({ query, setQuery }: { query: string; setQuery: (q: string) => void }) {
   const spaces = useSortedRowIds("spaces", "order")
+  const rows = useTable("spaces")
+  // pinned spaces first, each group keeping its own order
+  const pinned = spaces.filter((s) => rows[s]?.pinned)
+  const rest = spaces.filter((s) => !rows[s]?.pinned)
   const active = useValue("activeSpace") as string
   const [justMade, setJustMade] = useState<string | null>(null)
   const search = useRef<HTMLInputElement>(null)
@@ -73,14 +78,18 @@ export function Sidebar({ query, setQuery }: { query: string; setQuery: (q: stri
             <Plus className="size-3.5" />
           </button>
         </div>
-        {spaces.map((id) => (
-          <SpaceItem
-            key={id}
-            id={id}
-            active={id === active}
-            startEditing={id === justMade}
-            onEdited={() => setJustMade(null)}
-          />
+        {[pinned, rest].map((group, i) => (
+          <div key={i} className={clsx("flex flex-col gap-0.5", i === 1 && pinned.length > 0 && "mt-1 border-t border-line pt-1.5")}>
+            {group.map((id) => (
+              <SpaceItem
+                key={id}
+                id={id}
+                active={id === active}
+                startEditing={id === justMade}
+                onEdited={() => setJustMade(null)}
+              />
+            ))}
+          </div>
         ))}
         <button
           onClick={createSpace}
@@ -127,6 +136,7 @@ function SpaceItem({
 }) {
   const name = useCell("spaces", id, "name") as string
   const color = useCell("spaces", id, "color") as string
+  const pinned = useCell("spaces", id, "pinned") as boolean
   // a collection dragged here moves into this space
   const { setNodeRef, isOver } = useDroppable({ id: `space:${id}`, data: { type: "space", id } })
 
@@ -137,6 +147,7 @@ function SpaceItem({
       className={clsx(
         "group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5",
         isOver ? "bg-panel-hi outline-2 outline-accent" : active ? "bg-hover font-medium" : "hover:bg-hover",
+        pinned && "font-semibold",
       )}
     >
       <span className={clsx("grid size-4 shrink-0 place-items-center rounded text-[9px] font-bold text-white", `space-${color}`)}>
@@ -152,16 +163,35 @@ function SpaceItem({
         }}
         className="flex-1"
       />
+      <SpaceButton
+        label={pinned ? "Unpin" : "Pin to top"}
+        onClick={() => store.setCell("spaces", id, "pinned", !pinned)}
+      >
+        {pinned ? <PinOff /> : <Pin />}
+      </SpaceButton>
+      <SpaceButton
+        label="Delete space"
+        onClick={() => confirm(`Delete the space "${name || "Untitled"}" and everything in it?`) && deleteSpace(id)}
+      >
+        <Trash2 />
+      </SpaceButton>
+    </div>
+  )
+}
+
+function SpaceButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <Tooltip label={label}>
       <button
         onClick={(e) => {
           e.stopPropagation()
-          if (confirm(`Delete the space "${name || "Untitled"}" and everything in it?`)) deleteSpace(id)
+          onClick()
         }}
-        className="invisible rounded p-0.5 text-ink-3 group-hover:visible hover:text-ink"
-        title="Delete space"
+        aria-label={label}
+        className="invisible rounded p-0.5 text-ink-3 group-hover:visible hover:text-ink [&>svg]:size-3.5"
       >
-        <Trash2 className="size-3" />
+        {children}
       </button>
-    </div>
+    </Tooltip>
   )
 }

@@ -1,12 +1,14 @@
 import clsx from "clsx"
-import { AppWindow, Ban, ChevronDown, ExternalLink, GripVertical, Palette, Plus, Star, Tag, Trash2, X } from "lucide-react"
+import { AppWindow, Ban, ChevronDown, ExternalLink, GripVertical, Import, Palette, Plus, SquareX, Star, Tag, Trash2, X } from "lucide-react"
 import { rectSortingStrategy, SortableContext, useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { useCell, useSliceRowIds, useTable, useValue } from "tinybase/ui-react"
 
 import { Dropdown, MenuItem } from "./Dropdown"
 import { InlineName } from "./InlineName"
+import { Tooltip } from "./Tooltip"
 import { LinkCard } from "./LinkCard"
+import { closeOpenTabsOf, saveWindowInto } from "@/lib/tabs"
 import { addTag, collectionTags, COLORS, deleteCollection, deleteTag, store, toggleTag, type View } from "@/lib/store"
 
 const GRIDS: Record<View, string> = {
@@ -61,71 +63,78 @@ export function Collection({
         isDragging && "z-10 opacity-60",
       )}
     >
-      <header className="flex items-center gap-1.5">
+      <header className="flex min-h-8 flex-wrap items-center gap-x-2 gap-y-1">
         {draggable && (
-          <button
-            ref={setActivatorNodeRef}
-            {...attributes}
-            {...listeners}
-            className="absolute top-[18px] left-1.5 cursor-grab rounded p-0.5 text-ink-3 opacity-0 group-hover/col:opacity-100 hover:bg-hover hover:text-ink"
-            title="Drag to reorder, or onto a space to move it there"
-          >
-            <GripVertical className="size-4" />
-          </button>
+          <div className="absolute top-[19px] left-1 opacity-0 group-hover/col:opacity-100">
+            <Tooltip label="Drag to reorder, or onto a space to move it">
+              <button
+                ref={setActivatorNodeRef}
+                {...attributes}
+                {...listeners}
+                aria-label="Drag collection"
+                className="cursor-grab rounded p-0.5 text-ink-3 hover:bg-hover hover:text-ink"
+              >
+                <GripVertical className="size-5" />
+              </button>
+            </Tooltip>
+          </div>
         )}
         <InlineName
           value={name}
           placeholder="Untitled collection"
           startEditing={startEditing}
           onChange={(v) => store.setCell("collections", id, "name", v)}
-          className="text-[15px]"
+          className="text-lg"
         />
-        <button
+        <IconButton
+          label={collapsed ? "Expand" : "Collapse"}
           onClick={() => store.setCell("collections", id, "collapsed", !collapsed)}
-          className="rounded p-0.5 text-ink-3 hover:bg-hover hover:text-ink"
-          title={collapsed ? "Expand" : "Collapse"}
+          className="text-ink-3"
         >
-          <ChevronDown className={clsx("size-3.5 transition-transform", collapsed && "-rotate-90")} />
-        </button>
-        <button
+          <ChevronDown className={clsx("transition-transform", collapsed && "-rotate-90")} />
+        </IconButton>
+        <IconButton
+          label={starred ? "Unstar" : "Star"}
           onClick={() => store.setCell("collections", id, "starred", !starred)}
-          className={clsx(
-            "rounded p-0.5 hover:bg-hover",
-            starred ? "text-amber-500" : "text-ink-3 opacity-0 group-hover/col:opacity-100 hover:text-ink",
-          )}
-          title={starred ? "Unstar" : "Star"}
+          className={starred ? "text-amber-500" : "text-ink-3 opacity-0 group-hover/col:opacity-100"}
         >
-          <Star className="size-3.5" fill={starred ? "currentColor" : "none"} />
-        </button>
+          <Star fill={starred ? "currentColor" : "none"} />
+        </IconButton>
         {tags.map((t) => (
           <span
             key={t}
-            className={clsx("rounded-full px-2 py-0.5 text-[10px] font-medium text-white", `space-${tagRows[t]!.color}`)}
+            className={clsx("rounded-full px-2.5 py-0.5 text-xs font-medium text-white", `space-${tagRows[t]!.color}`)}
           >
             {tagRows[t]!.name as string}
           </span>
         ))}
-        <div className="opacity-0 group-hover/col:opacity-100 has-[div.absolute]:opacity-100">
+        <div className="text-ink-3 opacity-0 group-hover/col:opacity-100 has-[div.absolute]:opacity-100">
           <TagPicker collectionId={id} selected={tags} />
         </div>
 
         <div className="ml-auto flex items-center gap-1 text-ink-3 opacity-0 transition-opacity group-hover/col:opacity-100 has-[div.absolute]:opacity-100">
           <ColorPicker collectionId={id} current={color} />
-          <IconButton title="Open all in tabs" onClick={() => urls().forEach((url) => chrome.tabs.create({ url, active: false }))}>
+          <IconButton label="Open all in tabs" onClick={() => urls().forEach((url) => chrome.tabs.create({ url, active: false }))}>
             <ExternalLink />
           </IconButton>
-          <IconButton title="Open all in a new window" onClick={() => chrome.windows.create({ url: urls() })}>
+          <IconButton label="Open all in a new window" onClick={() => chrome.windows.create({ url: urls() })}>
             <AppWindow />
           </IconButton>
+          <IconButton label="Save this window's tabs into this collection" onClick={() => saveWindowInto(id)}>
+            <Import />
+          </IconButton>
+          <IconButton label="Close open tabs that are in this collection" onClick={() => closeOpenTabsOf(id)}>
+            <SquareX />
+          </IconButton>
           <IconButton
-            title="Delete collection"
+            label="Delete collection"
             onClick={() => (all.length === 0 || confirm(`Delete "${name || "Untitled"}" and its ${all.length} tabs?`)) && deleteCollection(id)}
           >
             <Trash2 />
           </IconButton>
         </div>
       </header>
-      <p className="mt-0.5 mb-3 text-xs text-ink-2">
+      <p className="mt-0.5 mb-3 text-[13px] text-ink-2">
         {all.length} {all.length === 1 ? "tab" : "tabs"}
       </p>
 
@@ -147,18 +156,34 @@ export function Collection({
   )
 }
 
-function IconButton({ title, onClick, children }: { title: string; onClick: () => void; children: React.ReactNode }) {
+/** A header icon with a tooltip. Sized to match the big dropdown icons. */
+function IconButton({
+  label,
+  onClick,
+  className,
+  children,
+}: {
+  label: string
+  onClick: () => void
+  className?: string
+  children: React.ReactNode
+}) {
   return (
-    <button onClick={onClick} title={title} className="rounded p-1 hover:bg-hover hover:text-ink [&>svg]:size-3.5">
-      {children}
-    </button>
+    <Tooltip label={label}>
+      <button
+        onClick={onClick}
+        aria-label={label}
+        className={clsx("rounded-md p-1.5 hover:bg-hover hover:text-ink [&>svg]:size-[18px]", className)}
+      >
+        {children}
+      </button>
+    </Tooltip>
   )
 }
-
 function TagPicker({ collectionId, selected }: { collectionId: string; selected: string[] }) {
   const tags = useTable("tags")
   return (
-    <Dropdown icon={<Tag />} label="" chevron={false} title="Tags">
+    <Dropdown icon={<Tag />} label="" chevron={false} big tooltip="Tags">
       {() => (
         <>
           {Object.entries(tags).map(([t, row]) => (
@@ -201,7 +226,7 @@ function TagPicker({ collectionId, selected }: { collectionId: string; selected:
 function ColorPicker({ collectionId, current }: { collectionId: string; current: string }) {
   const set = (c: string) => store.setCell("collections", collectionId, "color", c)
   return (
-    <Dropdown icon={<Palette />} label="" chevron={false} title="Background color" align="right">
+    <Dropdown icon={<Palette />} label="" chevron={false} big tooltip="Background color" align="right">
       {(close) => (
         <div className="flex items-center gap-1.5 p-1.5">
           <button
