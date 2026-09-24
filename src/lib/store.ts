@@ -248,6 +248,15 @@ export function addLinks(collectionId: string, links: LinkFields[], place: Place
   })
 }
 
+/** Take a page out of a collection, including any copies of it. */
+export function removeUrl(collectionId: string, url: string) {
+  store.transaction(() => {
+    for (const l of sortedIds("links", ["collectionId", collectionId])) {
+      if (store.getCell("links", l, "url") === url) store.delRow("links", l)
+    }
+  })
+}
+
 export function moveLink(id: string, collectionId: string, place: Place = {}) {
   if (id === place.targetId) return
   store.transaction(() => {

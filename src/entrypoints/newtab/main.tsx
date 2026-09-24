@@ -4,7 +4,7 @@ import { Provider } from "tinybase/ui-react"
 
 import { App } from "@/components/App"
 import { indexes, store } from "@/lib/store"
-import "./style.css"
+import "@/app.css"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

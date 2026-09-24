@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react"
 import clsx from "clsx"
-import { Download, Pin, PinOff, Plus, Search, Trash2, Upload } from "lucide-react"
+import { Download, Pin, PinOff, Plus, Trash2, Upload } from "lucide-react"
 import { useDroppable } from "@dnd-kit/core"
 import { useCell, useSortedRowIds, useTable, useValue } from "tinybase/ui-react"
 
 import { InlineName } from "./InlineName"
+import { SearchField } from "./SearchField"
+import { SpaceBadge } from "./SpaceBadge"
 import { Tooltip } from "./Tooltip"
 import { addSpace, COLORS, deleteSpace, store } from "@/lib/store"
 import { exportJson, importJson } from "@/lib/transfer"
@@ -58,18 +60,9 @@ export function Sidebar({ query, setQuery }: { query: string; setQuery: (q: stri
         <span className="text-[15px] font-semibold">Tabby</span>
       </div>
 
-      <label className="flex items-center gap-2 rounded-lg border border-line bg-card px-2.5 py-1.5 text-ink-2 focus-within:outline-2 focus-within:outline-accent">
-        <Search className="size-3.5" />
-        <input
-          ref={search}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === "Escape" && setQuery("")}
-          placeholder="Search"
-          className="min-w-0 flex-1 bg-transparent text-ink outline-none placeholder:text-ink-2"
-        />
+      <SearchField ref={search} value={query} onChange={setQuery}>
         <kbd className="rounded border border-line px-1 text-[10px] text-ink-3">/</kbd>
-      </label>
+      </SearchField>
 
       <nav className="flex flex-col gap-0.5">
         <div className="mb-1 flex items-center justify-between px-2 text-xs text-ink-2">
@@ -135,7 +128,6 @@ function SpaceItem({
   onEdited: () => void
 }) {
   const name = useCell("spaces", id, "name") as string
-  const color = useCell("spaces", id, "color") as string
   const pinned = useCell("spaces", id, "pinned") as boolean
   // a collection dragged here moves into this space
   const { setNodeRef, isOver } = useDroppable({ id: `space:${id}`, data: { type: "space", id } })
@@ -150,9 +142,7 @@ function SpaceItem({
         pinned && "font-semibold",
       )}
     >
-      <span className={clsx("grid size-4 shrink-0 place-items-center rounded text-[9px] font-bold text-white", `space-${color}`)}>
-        {(name || "?")[0]!.toUpperCase()}
-      </span>
+      <SpaceBadge id={id} />
       <InlineName
         value={name}
         placeholder="Untitled space"

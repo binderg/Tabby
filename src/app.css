@@ -1,5 +1,6 @@
+/* The stylesheet every Tabby page loads (new tab and toolbar popup), so both share one theme. */
 @import "tailwindcss";
-@import "../../theme.css";
+@import "./theme.css";
 
 html,
 body,

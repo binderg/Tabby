@@ -36,3 +36,15 @@ export async function saveWindowInto(collectionId: string) {
     }
   })
 }
+
+/** Show Tabby: switch to a Tabby page that is already open, or open a new one. */
+export async function openTabby() {
+  const url = chrome.runtime.getURL("/newtab.html")
+  const [open] = await chrome.tabs.query({ url })
+  if (open?.id) {
+    await chrome.tabs.update(open.id, { active: true })
+    await chrome.windows.update(open.windowId, { focused: true })
+  } else {
+    await chrome.tabs.create({ url })
+  }
+}

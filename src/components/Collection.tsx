@@ -6,6 +6,7 @@ import { useCell, useSliceRowIds, useTable, useValue } from "tinybase/ui-react"
 
 import { Dropdown, MenuItem } from "./Dropdown"
 import { InlineName } from "./InlineName"
+import { IconButton } from "./IconButton"
 import { Tooltip } from "./Tooltip"
 import { LinkCard } from "./LinkCard"
 import { closeOpenTabsOf, saveWindowInto } from "@/lib/tabs"
@@ -157,29 +158,6 @@ export function Collection({
 }
 
 /** A header icon with a tooltip. Sized to match the big dropdown icons. */
-function IconButton({
-  label,
-  onClick,
-  className,
-  children,
-}: {
-  label: string
-  onClick: () => void
-  className?: string
-  children: React.ReactNode
-}) {
-  return (
-    <Tooltip label={label}>
-      <button
-        onClick={onClick}
-        aria-label={label}
-        className={clsx("rounded-md p-1.5 hover:bg-hover hover:text-ink [&>svg]:size-[18px]", className)}
-      >
-        {children}
-      </button>
-    </Tooltip>
-  )
-}
 function TagPicker({ collectionId, selected }: { collectionId: string; selected: string[] }) {
   const tags = useTable("tags")
   return (
