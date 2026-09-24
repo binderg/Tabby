@@ -64,7 +64,7 @@ export function Dropdown({
       {open && (
         <div
           className={clsx(
-            "absolute top-full z-40 mt-1 flex min-w-44 flex-col rounded-xl border border-line bg-card p-1 text-[13px] text-ink shadow-lg",
+            "absolute top-full z-40 mt-1 flex min-w-44 flex-col rounded-xl border border-line bg-card p-1 text-[13px] text-ink shadow-pop",
             align === "right" ? "right-0" : "left-0",
           )}
         >

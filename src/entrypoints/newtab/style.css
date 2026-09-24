@@ -1,51 +1,5 @@
 @import "tailwindcss";
-
-:root {
-  --page: #efebe6;
-  --rail: #f7f5f2;
-  --panel: #f3f1ed;
-  --panel-hi: #fde1e6;
-  --card: #ffffff;
-  --ink: #2a2622;
-  --ink-2: #6f6862;
-  --ink-3: #a39c95;
-  --line: #e6e1db;
-  --hover: #ebe7e2;
-  --accent: #f0506e;
-  --accent-ink: #ffffff;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --page: #151312;
-    --rail: #1c1a19;
-    --panel: #211f1d;
-    --panel-hi: #3a2228;
-    --card: #2b2826;
-    --ink: #f1ece7;
-    --ink-2: #b3aba4;
-    --ink-3: #7c756f;
-    --line: #34302d;
-    --hover: #2e2b28;
-    --accent: #f25d78;
-  }
-}
-
-@theme inline {
-  --color-page: var(--page);
-  --color-rail: var(--rail);
-  --color-panel: var(--panel);
-  --color-panel-hi: var(--panel-hi);
-  --color-card: var(--card);
-  --color-ink: var(--ink);
-  --color-ink-2: var(--ink-2);
-  --color-ink-3: var(--ink-3);
-  --color-line: var(--line);
-  --color-hover: var(--hover);
-  --color-accent: var(--accent);
-  --color-accent-ink: var(--accent-ink);
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-}
+@import "../../theme.css";
 
 html,
 body,
@@ -61,18 +15,3 @@ body {
   font-size: 13px;
   -webkit-font-smoothing: antialiased;
 }
-
-.space-pink { background: #e0536b; }
-.space-amber { background: #e1a33b; }
-.space-green { background: #3fae6a; }
-.space-blue { background: #4a86e8; }
-.space-purple { background: #9a5ce0; }
-.space-slate { background: #7b8490; }
-
-/* collection background tints, mixed into the panel so they work in both themes */
-.tint-pink { background: color-mix(in srgb, #e0536b 14%, var(--panel)); }
-.tint-amber { background: color-mix(in srgb, #e1a33b 16%, var(--panel)); }
-.tint-green { background: color-mix(in srgb, #3fae6a 14%, var(--panel)); }
-.tint-blue { background: color-mix(in srgb, #4a86e8 14%, var(--panel)); }
-.tint-purple { background: color-mix(in srgb, #9a5ce0 14%, var(--panel)); }
-.tint-slate { background: color-mix(in srgb, #7b8490 16%, var(--panel)); }

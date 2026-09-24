@@ -1,0 +1,121 @@
+/* Tabby's theme: every color, shadow and palette value the app uses.
+ *
+ * Change a value here and it changes everywhere. Components never hard-code a
+ * color; they use the Tailwind names mapped at the bottom (bg-card, text-ink-2,
+ * shadow-card, ...) or the .space-* and .tint-* classes.
+ *
+ * Taken from the logo: the bright blue of the browser bar on white, with cool
+ * blue-grey surfaces so white cards stand out.
+ */
+
+:root {
+  /* surfaces, back to front */
+  --page: #eaf0f9; /* behind everything */
+  --rail: #f4f7fc; /* modals and menus */
+  --panel: #f7f9fd; /* the main collections panel */
+  --panel-hi: #dce8fd; /* a collection while something is dragged over it */
+  --card: #ffffff;
+  --hover: #e3eaf5;
+  --line: #dde4ef;
+
+  /* text, strongest to faintest */
+  --ink: #1b2536;
+  --ink-2: #5a6679;
+  --ink-3: #97a2b4;
+
+  /* brand */
+  --accent: #2f6fed; /* the logo's browser bar */
+  --accent-ink: #ffffff; /* text on the accent */
+  --star: #f5a524; /* a starred collection */
+  --scrim: rgb(15 23 42 / 0.35); /* behind a modal */
+
+  --card-shadow: 0 1px 2px rgb(30 55 100 / 0.12), 0 2px 8px rgb(30 55 100 / 0.08);
+  --card-shadow-hover: 0 2px 4px rgb(30 55 100 / 0.12), 0 6px 18px rgb(30 55 100 / 0.16);
+  --pop-shadow: 0 8px 28px rgb(30 55 100 / 0.18);
+
+  /* the palette for spaces, tags and collection tints */
+  --c-blue: #2f6fed;
+  --c-orange: #ee8a2c; /* the cat */
+  --c-green: #22a45d;
+  --c-pink: #e0536b;
+  --c-purple: #8b5cf6;
+  --c-amber: #e1a33b;
+  --c-slate: #7b8698;
+  --tint-strength: 13%;
+
+  /* Chrome's tab group colors, for the open tabs panel */
+  --group-grey: #8a8f98;
+  --group-blue: #4a86e8;
+  --group-red: #e0524a;
+  --group-yellow: #e8b23a;
+  --group-green: #3fae6a;
+  --group-pink: #e05b9c;
+  --group-purple: #9a5ce0;
+  --group-cyan: #2fb3c9;
+  --group-orange: #ee8b3a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #0d1320;
+    --rail: #141c2c;
+    --panel: #172033;
+    --panel-hi: #1e3358;
+    --card: #1f2a40;
+    --hover: #26334c;
+    --line: #2a3650;
+
+    --ink: #edf2fa;
+    --ink-2: #aab5c7;
+    --ink-3: #6f7c92;
+
+    --accent: #4d8bff;
+    --accent-ink: #ffffff;
+    --scrim: rgb(0 0 0 / 0.55);
+
+    --card-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 2px 8px rgb(0 0 0 / 0.25);
+    --card-shadow-hover: 0 2px 4px rgb(0 0 0 / 0.4), 0 6px 18px rgb(0 0 0 / 0.4);
+    --pop-shadow: 0 8px 28px rgb(0 0 0 / 0.5);
+
+    --tint-strength: 22%;
+  }
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-rail: var(--rail);
+  --color-panel: var(--panel);
+  --color-panel-hi: var(--panel-hi);
+  --color-card: var(--card);
+  --color-hover: var(--hover);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-star: var(--star);
+  --color-scrim: var(--scrim);
+  --shadow-card: var(--card-shadow);
+  --shadow-card-hover: var(--card-shadow-hover);
+  --shadow-pop: var(--pop-shadow);
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* solid palette colors: space badges, tag pills, swatches */
+.space-blue { background: var(--c-blue); }
+.space-orange { background: var(--c-orange); }
+.space-green { background: var(--c-green); }
+.space-pink { background: var(--c-pink); }
+.space-purple { background: var(--c-purple); }
+.space-amber { background: var(--c-amber); }
+.space-slate { background: var(--c-slate); }
+
+/* collection backgrounds: the palette mixed into the panel, so they work in both themes */
+.tint-blue { background: color-mix(in srgb, var(--c-blue) var(--tint-strength), var(--panel)); }
+.tint-orange { background: color-mix(in srgb, var(--c-orange) var(--tint-strength), var(--panel)); }
+.tint-green { background: color-mix(in srgb, var(--c-green) var(--tint-strength), var(--panel)); }
+.tint-pink { background: color-mix(in srgb, var(--c-pink) var(--tint-strength), var(--panel)); }
+.tint-purple { background: color-mix(in srgb, var(--c-purple) var(--tint-strength), var(--panel)); }
+.tint-amber { background: color-mix(in srgb, var(--c-amber) var(--tint-strength), var(--panel)); }
+.tint-slate { background: color-mix(in srgb, var(--c-slate) var(--tint-strength), var(--panel)); }

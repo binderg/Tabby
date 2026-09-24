@@ -54,14 +54,14 @@ function CardButton({ title, onClick, children }: { title: string; onClick: () =
       title={title}
       onClick={onClick}
       onPointerDown={(e) => e.stopPropagation()}
-      className="grid size-5 place-items-center rounded bg-card text-ink-3 shadow-sm hover:bg-hover hover:text-ink [&>svg]:size-3"
+      className="grid size-5 place-items-center rounded bg-card text-ink-3 shadow-card hover:bg-hover hover:text-ink [&>svg]:size-3"
     >
       {children}
     </button>
   )
 }
 
-const SHADOW = "bg-card shadow-[0_1px_2px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
+const SHADOW = "bg-card shadow-card transition-shadow hover:shadow-card-hover"
 
 /** The card itself, in each view, shared with the drag overlay. */
 export function CardBody({

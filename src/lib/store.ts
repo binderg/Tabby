@@ -19,7 +19,7 @@ const KEY = "tabby"
 export const SCHEMA = {
   spaces: {
     name: { type: "string", default: "" },
-    color: { type: "string", default: "pink" },
+    color: { type: "string", default: "blue" },
     order: { type: "number", default: 0 },
     pinned: { type: "boolean", default: false },
   },
@@ -53,6 +53,8 @@ export const VALUES_SCHEMA = {
   activeSpace: { type: "string", default: "" },
   sort: { type: "string", default: "manual" },
   view: { type: "string", default: "card" },
+  /** which one-time data fixes have run, see `migrate` */
+  migrated: { type: "number", default: 0 },
 } as const
 
 export const SORTS = { manual: "Drag & Drop", alpha: "Alphabetical", starred: "Starred To Top", created: "Date Created" } as const
@@ -60,7 +62,8 @@ export type Sort = keyof typeof SORTS
 export const VIEWS = { card: "Card", compact: "Compact", list: "List", grid: "Grid" } as const
 export type View = keyof typeof VIEWS
 
-export const COLORS = ["pink", "amber", "green", "blue", "purple", "slate"] as const
+/** the palette in theme.css (--c-<name>), in the order new spaces and tags take them */
+export const COLORS = ["blue", "orange", "green", "pink", "purple", "amber", "slate"] as const
 export type Color = (typeof COLORS)[number]
 
 export const store: MergeableStore = createMergeableStore()
@@ -105,6 +108,21 @@ function chromeStoragePersister(s: MergeableStore) {
   )
 }
 
+/** One-time fixes to data saved by older versions, each run once per store. */
+function migrate() {
+  const done = store.getValue("migrated") as number
+  store.transaction(() => {
+    // 1: pink was the default space color before the blue theme; spaces still
+    //    on it were almost all defaults, so they move to the new default
+    if (done < 1) {
+      for (const s of store.getRowIds("spaces")) {
+        if (store.getCell("spaces", s, "color") === "pink") store.setCell("spaces", s, "color", "blue")
+      }
+    }
+    store.setValue("migrated", 1)
+  })
+}
+
 let opening: Promise<void> | null = null
 
 function open(): Promise<void> {
@@ -118,8 +136,9 @@ function open(): Promise<void> {
     await persister.startAutoSave()
 
     if (!store.getValue("device")) store.setValue("device", uid())
+    migrate()
     if (store.getRowCount("spaces") === 0) {
-      const id = addSpace("Personal", "pink")
+      const id = addSpace("Personal", "blue")
       store.setValue("activeSpace", id)
     }
     if (!store.hasRow("spaces", store.getValue("activeSpace") as string)) {

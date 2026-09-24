@@ -137,19 +137,19 @@ export function App() {
       </div>
       <DragOverlay dropAnimation={null}>
         {dragged?.kind === "card" && (
-          <div className="w-[13rem] rotate-2 cursor-grabbing shadow-lg">
+          <div className="w-[13rem] rotate-2 cursor-grabbing shadow-pop">
             <CardBody {...dragged} view={store.getValue("view") as View} />
           </div>
         )}
         {dragged?.kind === "tabs" && (
-          <div className="flex w-max cursor-grabbing items-center gap-2 rounded-xl bg-card px-4 py-2.5 shadow-lg">
+          <div className="flex w-max cursor-grabbing items-center gap-2 rounded-xl bg-card px-4 py-2.5 shadow-pop">
             <AppWindow className="size-4 text-accent" />
             <span className="font-medium">{dragged.name}</span>
             <span className="text-xs text-ink-2">{dragged.count} tabs</span>
           </div>
         )}
         {dragged?.kind === "collection" && (
-          <div className="flex w-max cursor-grabbing items-center gap-2 rounded-xl bg-card px-4 py-2.5 shadow-lg">
+          <div className="flex w-max cursor-grabbing items-center gap-2 rounded-xl bg-card px-4 py-2.5 shadow-pop">
             <Layers className="size-4 text-accent" />
             <span className="font-medium">{dragged.name}</span>
             <span className="text-xs text-ink-2">{dragged.count} tabs</span>

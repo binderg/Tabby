@@ -12,17 +12,8 @@ import { saveable } from "@/lib/tabs"
 type Win = { id: number; current: boolean; tabs: chrome.tabs.Tab[] }
 type Groups = Map<number, chrome.tabGroups.TabGroup>
 
-const GROUP_COLORS: Record<string, string> = {
-  grey: "#8a8f98",
-  blue: "#4a86e8",
-  red: "#e0524a",
-  yellow: "#e8b23a",
-  green: "#3fae6a",
-  pink: "#e05b9c",
-  purple: "#9a5ce0",
-  cyan: "#2fb3c9",
-  orange: "#ee8b3a",
-}
+/** Chrome's own tab group colors, defined in theme.css as --group-<name>. */
+const groupColor = (color: string) => `var(--group-${color})`
 
 function useAllWindows() {
   const [state, setState] = useState<{ windows: Win[]; groups: Groups }>({ windows: [], groups: new Map() })
@@ -157,14 +148,14 @@ function TabGroup({ group, tabs, stamp }: { group: chrome.tabGroups.TabGroup; ta
   return (
     <div
       className={clsx("flex flex-col gap-1.5 border-l-[3px] pl-2", drag.isDragging && "opacity-40")}
-      style={{ borderColor: GROUP_COLORS[group.color] }}
+      style={{ borderColor: groupColor(group.color) }}
     >
       <div
         ref={drag.setNodeRef}
         {...drag.attributes}
         {...drag.listeners}
         className="group/win flex cursor-grab items-center gap-1 text-xs font-medium"
-        style={{ color: GROUP_COLORS[group.color] }}
+        style={{ color: groupColor(group.color) }}
       >
         <span className="truncate">{name}</span>
         <span className="text-ink-3">{tabs.length}</span>
@@ -226,7 +217,7 @@ function OpenTab({ tab }: { tab: chrome.tabs.Tab }) {
         chrome.windows.update(tab.windowId, { focused: true })
       }}
       className={clsx(
-        "group/tab flex cursor-grab items-center gap-2 rounded-lg bg-card py-1.5 pr-1 pl-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)]",
+        "group/tab flex cursor-grab items-center gap-2 rounded-lg bg-card py-1.5 pr-1 pl-2.5 shadow-card hover:shadow-card-hover",
         isDragging && "opacity-40",
       )}
       title={tab.url}

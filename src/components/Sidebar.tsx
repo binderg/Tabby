@@ -8,7 +8,7 @@ import { InlineName } from "./InlineName"
 import { Tooltip } from "./Tooltip"
 import { addSpace, COLORS, deleteSpace, store } from "@/lib/store"
 import { exportJson, importJson } from "@/lib/transfer"
-import icon from "@/assets/icon.svg"
+import logo from "@/assets/logo.png"
 
 export function Sidebar({ query, setQuery }: { query: string; setQuery: (q: string) => void }) {
   const spaces = useSortedRowIds("spaces", "order")
@@ -54,7 +54,7 @@ export function Sidebar({ query, setQuery }: { query: string; setQuery: (q: stri
   return (
     <aside className="flex w-56 shrink-0 flex-col gap-4 px-3 py-5">
       <div className="flex items-center gap-2 px-2">
-        <img src={icon} alt="" className="size-7" />
+        <img src={logo} alt="" className="-my-1.5 size-10" />
         <span className="text-[15px] font-semibold">Tabby</span>
       </div>
 

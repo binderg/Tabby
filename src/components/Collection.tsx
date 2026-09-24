@@ -96,7 +96,7 @@ export function Collection({
         <IconButton
           label={starred ? "Unstar" : "Star"}
           onClick={() => store.setCell("collections", id, "starred", !starred)}
-          className={starred ? "text-amber-500" : "text-ink-3 opacity-0 group-hover/col:opacity-100"}
+          className={starred ? "text-star" : "text-ink-3 opacity-0 group-hover/col:opacity-100"}
         >
           <Star fill={starred ? "currentColor" : "none"} />
         </IconButton>

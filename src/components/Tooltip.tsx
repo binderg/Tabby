@@ -65,7 +65,7 @@ export function Tooltip({
             ref={bubble}
             role="tooltip"
             style={pos ?? { left: -9999, top: -9999 }}
-            className="pointer-events-none fixed z-[100] max-w-60 rounded-md bg-ink px-2 py-1 text-xs whitespace-nowrap text-page shadow-md"
+            className="pointer-events-none fixed z-[100] max-w-60 rounded-md bg-ink px-2 py-1 text-xs whitespace-nowrap text-page shadow-pop"
           >
             {label}
           </div>,

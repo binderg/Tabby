@@ -41,7 +41,7 @@ export function EditLinkModal({ id, onClose }: { id: string; onClose: () => void
      through a portal to the card, so pointer downs stop here rather than start a drag. */
   return createPortal(
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-black/30 p-4"
+      className="fixed inset-0 z-50 grid place-items-center bg-scrim p-4"
       onPointerDown={(e) => {
         e.stopPropagation()
         onClose()
@@ -53,7 +53,7 @@ export function EditLinkModal({ id, onClose }: { id: string; onClose: () => void
           e.preventDefault()
           save()
         }}
-        className="flex w-full max-w-md flex-col gap-4 rounded-2xl bg-rail p-6 shadow-xl"
+        className="flex w-full max-w-md flex-col gap-4 rounded-2xl bg-rail p-6 shadow-pop"
       >
         <h2 className="flex items-center gap-2 text-base font-medium">
           <img src={faviconUrl(draft.url)} alt="" className="size-4" />

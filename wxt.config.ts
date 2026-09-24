@@ -5,7 +5,7 @@ export default defineConfig({
   srcDir: "src",
   modules: ["@wxt-dev/module-react", "@wxt-dev/auto-icons"],
   autoIcons: {
-    baseIconPath: "assets/icon.svg",
+    baseIconPath: "assets/logo.png",
     developmentIndicator: false,
   },
   manifest: {

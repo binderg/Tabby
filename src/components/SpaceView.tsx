@@ -59,7 +59,7 @@ export function SpaceView({ query }: { query: string }) {
     store.transaction(() => collections.forEach((c) => store.setCell("collections", c, "collapsed", collapsed)))
 
   return (
-    <main className="my-3 flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl bg-panel shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+    <main className="my-3 flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl bg-panel shadow-card">
       <header className="flex flex-col gap-3 border-b border-line px-6 pt-5 pb-3">
         {matches ? (
           <h1 className="text-xl">
