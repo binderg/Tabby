@@ -12,12 +12,12 @@ import { closeOpenTabsOf, saveWindowInto } from "@/lib/tabs"
 import { addTag, collectionTags, COLORS, deleteCollection, deleteTag, store, toggleTag, type View } from "@/lib/store"
 
 const GRIDS: Record<View, string> = {
-  card: "grid grid-cols-[repeat(auto-fill,minmax(164px,1fr))] gap-3",
+  card: "grid grid-cols-[repeat(auto-fill,13rem)] gap-3",
   compact: "grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-2",
   list: "flex flex-col gap-1",
   grid: "grid grid-cols-[repeat(auto-fill,minmax(104px,1fr))] gap-3",
 }
-const EMPTY_HEIGHT: Record<View, string> = { card: "h-[92px]", compact: "h-10", list: "h-9", grid: "h-[104px]" }
+const EMPTY_HEIGHT: Record<View, string> = { card: "h-[6.2rem]", compact: "h-10", list: "h-9", grid: "h-[104px]" }
 
 /** `draggable` is off in search results, where a collection sits outside its space. */
 export function Collection({

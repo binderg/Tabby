@@ -216,6 +216,19 @@ export function addLink(collectionId: string, link: LinkFields, place: Place = {
   return id
 }
 
+/** Add several links in order at one place, skipping addresses the collection already has. */
+export function addLinks(collectionId: string, links: LinkFields[], place: Place = {}) {
+  const have = new Set(sortedIds("links", ["collectionId", collectionId]).map((l) => store.getCell("links", l, "url")))
+  store.transaction(() => {
+    for (const link of links) {
+      if (have.has(link.url)) continue
+      have.add(link.url)
+      // each one lands after the last, so the batch keeps its order
+      place = { targetId: addLink(collectionId, link, place), after: true }
+    }
+  })
+}
+
 export function moveLink(id: string, collectionId: string, place: Place = {}) {
   if (id === place.targetId) return
   store.transaction(() => {

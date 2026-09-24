@@ -11,7 +11,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core"
-import { Layers } from "lucide-react"
+import { AppWindow, Layers } from "lucide-react"
 
 import { CardBody } from "./LinkCard"
 import { OpenTabs } from "./OpenTabs"
@@ -19,6 +19,7 @@ import { Sidebar } from "./Sidebar"
 import { SpaceView } from "./SpaceView"
 import {
   addLink,
+  addLinks,
   moveCollectionToSpace,
   moveLink,
   reorderCollection,
@@ -30,6 +31,7 @@ import {
 type Dragged =
   | { kind: "card"; url: string; title: string; description?: string }
   | { kind: "collection"; name: string; count: number }
+  | { kind: "tabs"; name: string; count: number }
 
 /* A collection being dragged lands on a space in the sidebar if the pointer is
    over one, otherwise on the nearest collection. Anything else looks for the
@@ -61,6 +63,7 @@ export function App() {
   const onDragStart = ({ active }: DragStartEvent) => {
     const d = active.data.current!
     if (d.type === "tab") setDragged({ kind: "card", url: d.url, title: d.title })
+    if (d.type === "tabs") setDragged({ kind: "tabs", name: d.label, count: d.tabs.length })
     if (d.type === "collection") {
       setDragged({
         kind: "collection",
@@ -94,6 +97,7 @@ export function App() {
 
     if (to.type === "collection") {
       if (from.type === "tab") addLink(to.id, { url: from.url, title: from.title })
+      if (from.type === "tabs") addLinks(to.id, from.tabs)
       if (from.type === "link") moveLink(from.id, to.id)
       return
     }
@@ -112,6 +116,7 @@ export function App() {
     }
     const place = { targetId: to.id, after }
     if (from.type === "tab") addLink(to.collectionId, { url: from.url, title: from.title }, place)
+    if (from.type === "tabs") addLinks(to.collectionId, from.tabs, place)
     if (from.type === "link") moveLink(from.id, to.collectionId, place)
   }
 
@@ -132,8 +137,15 @@ export function App() {
       </div>
       <DragOverlay dropAnimation={null}>
         {dragged?.kind === "card" && (
-          <div className="w-[180px] rotate-2 cursor-grabbing shadow-lg">
+          <div className="w-[13rem] rotate-2 cursor-grabbing shadow-lg">
             <CardBody {...dragged} view={store.getValue("view") as View} />
+          </div>
+        )}
+        {dragged?.kind === "tabs" && (
+          <div className="flex w-max cursor-grabbing items-center gap-2 rounded-xl bg-card px-4 py-2.5 shadow-lg">
+            <AppWindow className="size-4 text-accent" />
+            <span className="font-medium">{dragged.name}</span>
+            <span className="text-xs text-ink-2">{dragged.count} tabs</span>
           </div>
         )}
         {dragged?.kind === "collection" && (

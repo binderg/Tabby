@@ -108,7 +108,7 @@ export function CardBody({
   }
 
   return (
-    <a {...link} className={clsx("flex h-[92px] w-full flex-col overflow-hidden rounded-xl", SHADOW)}>
+    <a {...link} className={clsx("flex h-[6.2rem] w-full flex-col overflow-hidden rounded-xl", SHADOW)}>
       <span className="flex min-w-0 flex-1 items-center gap-2 px-3 pr-7">
         {icon("size-4")}
         {name}
